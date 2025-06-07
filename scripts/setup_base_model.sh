@@ -27,8 +27,8 @@ if [[ -n "${HF_TOKEN:-}" ]]; then
 fi
 
 info "Downloading $HF_REPO to $TARGET_DIR ..."
-huggingface-cli download "$HF_REPO" --repo-type model \ 
-  --local-dir "$TARGET_DIR" --local-dir-use-symlinks False \
+huggingface-cli download "$HF_REPO" --repo-type model \
+  --local-dir "$TARGET_DIR" \
   --resume-download "${TOKEN_ARG[@]}" >/dev/null
 ok "Download complete."
 
