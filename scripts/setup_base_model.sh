@@ -12,7 +12,7 @@ usage() {
 
 [[ $# -eq 1 ]] || usage
 TARGET_DIR="$1"
-HF_REPO="meta-llama/Meta-Llama-3-8B"
+HF_REPO="meta-llama/Llama-3.1-8B"
 
 command -v huggingface-cli >/dev/null 2>&1 || {
   err "huggingface-cli not found. Install via 'pip install -U huggingface_hub'."
