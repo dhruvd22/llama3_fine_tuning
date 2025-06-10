@@ -31,7 +31,7 @@ usage() {
 TARGET_DIR="$1"
 MODEL_STAGE="${2:-stage1}"
 
-SPIDER_URL="https://yale-lily.github.io/spider/spider.zip"
+SPIDER_URL="https://github.com/taoyds/spider/archive/refs/heads/master.zip"
 WIKISQL_URL="https://storage.googleapis.com/wikisql/wikisql.tar.bz2"
 
 mkdir -p "$TARGET_DIR"
