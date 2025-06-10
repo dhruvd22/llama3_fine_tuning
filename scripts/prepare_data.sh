@@ -5,6 +5,23 @@ ok() { echo -e "\e[32m✔\e[0m $*"; }
 err() { echo -e "\e[31m✖\e[0m $*"; }
 info() { echo -e "\e[34m➜\e[0m $*"; }
 
+# download_file URL DEST
+# Logs progress and prints the system error on failure
+download_file() {
+  local url="$1" dest="$2"
+  local log
+  log=$(mktemp)
+  if wget --progress=dot:giga "$url" -O "$dest" 2> >(tee "$log" >&2); then
+    ok "$dest downloaded"
+  else
+    err "Failed to download $dest from $url"
+    cat "$log" >&2
+    rm -f "$log"
+    exit 1
+  fi
+  rm -f "$log"
+}
+
 usage() {
   echo "Usage: $0 TARGET_DIR [MODEL_STAGE]" >&2
   exit 1
@@ -25,8 +42,7 @@ if [[ -f spider.zip ]]; then
   ok "spider.zip already exists"
 else
   info "🔄 Downloading Spider..."
-  wget -q "$SPIDER_URL"
-  ok "Spider downloaded"
+  download_file "$SPIDER_URL" spider.zip
 fi
 
 info "Checking WikiSQL download..."
@@ -34,8 +50,7 @@ if [[ -f wikisql.tar.bz2 ]]; then
   ok "wikisql.tar.bz2 already exists"
 else
   info "🔄 Downloading WikiSQL..."
-  wget -q "$WIKISQL_URL"
-  ok "WikiSQL downloaded"
+  download_file "$WIKISQL_URL" wikisql.tar.bz2
 fi
 
 info "Checking Spider extraction..."
