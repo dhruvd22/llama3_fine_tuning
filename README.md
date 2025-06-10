@@ -10,3 +10,11 @@ Scripts, configs, and experiments for fine-tuning Meta AI Llama-3-8B into a Text
 - `models/`     → final packaged models
 - `logs/`       → training & evaluation logs
 
+## Requirements
+The helper scripts assume common utilities like `wget`, `tar`, and `unzip` are
+installed. On Debian/Ubuntu systems you can install them with:
+
+```bash
+sudo apt-get update && sudo apt-get install -y wget tar unzip
+```
+

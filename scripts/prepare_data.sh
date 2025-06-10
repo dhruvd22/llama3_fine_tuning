@@ -31,6 +31,12 @@ usage() {
 TARGET_DIR="$1"
 MODEL_STAGE="${2:-stage1}"
 
+# Ensure unzip is available for extracting Spider
+command -v unzip >/dev/null 2>&1 || {
+  err "unzip not found. Install via 'apt-get install -y unzip' and rerun."
+  exit 1
+}
+
 SPIDER_URL="https://github.com/taoyds/spider/archive/refs/heads/master.zip"
 WIKISQL_URL="https://huggingface.co/datasets/xlangai/spider/resolve/main/spider.zip"
 
