@@ -32,7 +32,7 @@ TARGET_DIR="$1"
 MODEL_STAGE="${2:-stage1}"
 
 SPIDER_URL="https://github.com/taoyds/spider/archive/refs/heads/master.zip"
-WIKISQL_URL="https://storage.googleapis.com/wikisql/wikisql.tar.bz2"
+WIKISQL_URL="https://huggingface.co/datasets/xlangai/spider/resolve/main/spider.zip"
 
 mkdir -p "$TARGET_DIR"
 cd "$TARGET_DIR"
