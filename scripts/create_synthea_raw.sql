@@ -152,3 +152,88 @@ CREATE TABLE payers (
     "QOLS_AVG"               numeric,
     "MEMBER_MONTHS"          integer
 );
+
+CREATE TABLE payer_transitions (
+    "PATIENT"    uuid,
+    "START_YEAR" integer,
+    "END_YEAR"   integer,
+    "PAYER"      uuid,
+    "OWNERSHIP"  text
+);
+
+-- =========================================
+-- Table: patients
+-- =========================================
+CREATE TABLE patients (
+    "Id"                 uuid,
+    "BIRTHDATE"          date,
+    "DEATHDATE"          date,
+    "SSN"                text,
+    "DRIVERS"            text,
+    "PASSPORT"           text,
+    "PREFIX"             text,
+    "FIRST"              text,
+    "LAST"               text,
+    "SUFFIX"             text,
+    "MAIDEN"             text,
+    "MARITAL"            text,
+    "RACE"               text,
+    "ETHNICITY"          text,
+    "GENDER"             text,
+    "BIRTHPLACE"         text,
+    "ADDRESS"            text,
+    "CITY"               text,
+    "STATE"              text,
+    "COUNTY"             text,
+    "ZIP"                integer,
+    "LAT"                numeric,
+    "LON"                numeric,
+    "HEALTHCARE_EXPENSES" numeric,
+    "HEALTHCARE_COVERAGE" numeric
+);
+
+-- =========================================
+-- Table: supplies
+-- (file contained only the header row, so
+--  types are based on header semantics)
+-- =========================================
+CREATE TABLE supplies (
+    "DATE"        timestamptz,
+    "PATIENT"     uuid,
+    "ENCOUNTER"   uuid,
+    "CODE"        integer,
+    "DESCRIPTION" text,
+    "QUANTITY"    integer
+);
+
+-- =========================================
+-- Table: providers
+-- =========================================
+CREATE TABLE providers (
+    "Id"          uuid,
+    "ORGANIZATION" uuid,
+    "NAME"        text,
+    "GENDER"      text,
+    "SPECIALITY"  text,
+    "ADDRESS"     text,
+    "CITY"        text,
+    "STATE"       text,
+    "ZIP"         integer,
+    "LAT"         numeric,
+    "LON"         numeric,
+    "UTILIZATION" integer
+);
+
+-- =========================================
+-- Table: procedures
+-- =========================================
+CREATE TABLE procedures (
+    "DATE"                timestamptz,
+    "PATIENT"             uuid,
+    "ENCOUNTER"           uuid,
+    "CODE"                integer,
+    "DESCRIPTION"         text,
+    "BASE_COST"           numeric,
+    "REASONCODE"          integer,
+    "REASONDESCRIPTION"   text
+);
