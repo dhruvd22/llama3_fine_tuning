@@ -48,13 +48,13 @@ CREATE TABLE "imaging_studies" (
 );
 
 CREATE TABLE "devices" (
-    "DATE" timestamp with time zone,
+    "START" timestamp with time zone,
+    "STOP" timestamp with time zone,
     "PATIENT" uuid,
     "ENCOUNTER" uuid,
     "CODE" integer,
     "DESCRIPTION" text,
-    "UDI" text,
-    "STATUS" text
+    "UDI" text
 );
 
 CREATE TABLE "careplans" (
