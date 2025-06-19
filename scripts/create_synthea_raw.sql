@@ -10,16 +10,7 @@ CREATE TABLE allergies (
   encounter         varchar,
   code              varchar,
   system            varchar,
-  description       varchar,
-  type              varchar,
-  category          varchar,
-  reaction1         varchar,
-  description1      varchar,
-  severity1         varchar,
-  reaction2         varchar,
-  description2      varchar,
-  severity2         varchar
-);
+  description       varchar);
 
 /* ---------- careplans ----------------------------------------------- */
 CREATE TABLE careplans (
