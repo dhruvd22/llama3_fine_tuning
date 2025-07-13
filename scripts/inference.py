@@ -79,7 +79,8 @@ def main() -> None:
         inputs = tokenizer(prompt, return_tensors="pt")
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
         outputs = model.generate(**inputs, max_new_tokens=args.max_tokens)
-        return tokenizer.decode(outputs[0], skip_special_tokens=True)
+        generated_tokens = outputs[0, inputs["input_ids"].shape[-1]:]
+        return tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
     prompt = args.prompt
     if prompt is None:
