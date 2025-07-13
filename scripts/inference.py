@@ -67,9 +67,8 @@ def main() -> None:
     """Run inference using the provided configuration file."""
     parser = argparse.ArgumentParser(description="Run inference from YAML config")
     parser.add_argument("--config", required=True, help="Path to YAML config")
-    parser.add_argument("--prompt", default=None, help="Prompt text")
+    parser.add_argument("--prompt", default=None, help="Prompt text; if not provided you will be asked for it")
     parser.add_argument("--max_tokens", type=int, default=50)
-    parser.add_argument("--interactive", action="store_true", help="Run in interactive mode")
     args = parser.parse_args()
 
     logger = setup_logging()
@@ -82,22 +81,14 @@ def main() -> None:
         outputs = model.generate(**inputs, max_new_tokens=args.max_tokens)
         return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    if args.interactive:
-        print("Type 'quit' or 'exit' to stop.")
-        while True:
-            user_input = input("> ").strip()
-            if user_input.lower() in {"quit", "exit"}:
-                print("Exiting.")
-                break
-            response = generate_response(user_input)
-            logger.info("Model output: %s", response)
-            print(response)
-    else:
-        prompt = args.prompt or ""
-        logger.info("Generating response for prompt: %s", prompt)
-        response = generate_response(prompt)
-        logger.info("Model output: %s", response)
-        print(response)
+    prompt = args.prompt
+    if prompt is None:
+        prompt = input("Enter prompt: ").strip()
+
+    logger.info("Generating response for prompt: %s", prompt)
+    response = generate_response(prompt)
+    logger.info("Model output: %s", response)
+    print(response)
 
 if __name__ == '__main__':
     main()
