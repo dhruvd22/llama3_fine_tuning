@@ -45,3 +45,16 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
 
 For training, create an Axolotl configuration under `configs/` and launch it inside your RunPod container. Training metrics can be logged to W&B by setting the appropriate options in your Axolotl config.
 
+
+## Preprocess NL/SQL Datasets
+
+Use `scripts/preprocess_datasets.py` to convert training datasets into the prompt format expected by Axolotl. The command reads a YAML configuration describing one or more datasets and the prompt templates to apply.
+
+1. Edit `configs/preprocess.yaml` and set the path to your input dataset and desired output location. By default the `default_template` located under `configs/prompt_templates/` will be used.
+2. Run the preprocessing script:
+
+```bash
+python scripts/preprocess_datasets.py --config configs/preprocess.yaml
+```
+
+The script outputs a JSON Lines file where each line represents a training example rendered with the prompt template. Custom templates can be provided per dataset in the YAML configuration if needed.

@@ -1,0 +1,12 @@
+# Configuration for dataset preprocessing
+# Each dataset entry specifies the input JSON file, output path, and optional template override
+
+default_template: configs/prompt_templates/default_nl_sql.json
+
+datasets:
+  - input: datasets/train.json
+    output: datasets/train_prompted.jsonl
+  # Add more datasets as needed
+  # - input: path/to/other.json
+  #   output: path/to/output.jsonl
+  #   template: configs/prompt_templates/custom_template.json
