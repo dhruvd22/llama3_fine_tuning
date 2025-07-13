@@ -6,7 +6,7 @@ Training and experiment management is handled via the [Axolotl](https://github.c
 ## Repository Layout
 
 - `configs/` – YAML configuration files for Axolotl and inference
-- `scripts/` – utility scripts for downloading models and running inference
+- `scripts/` – utility scripts for downloading models, running inference, and uploading to the Hugging Face Hub
 - `datasets/` – place your training datasets here
 - `checkpoints/` – fine‑tuning outputs and LoRA adapters
 - `models/` – downloaded or merged models
@@ -27,9 +27,15 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
 
    Edit `configs/inference.yaml` to point `base_model_path` to your model directory then run:
 
-   ```bash
-   python scripts/inference.py --config configs/inference.yaml --prompt "Hello"
-   ```
+    ```bash
+    python scripts/inference.py --config configs/inference.yaml --prompt "Hello"
+    ```
+
+3. **Upload a model directory to the Hub**
+
+    ```bash
+    python scripts/upload_model.py models/my-llama "my-model/"
+    ```
 
 For training, create an Axolotl configuration under `configs/` and launch it inside your RunPod container. Training metrics can be logged to W&B by setting the appropriate options in your Axolotl config.
 
