@@ -1,6 +1,6 @@
 # Base model location (local path or HF repo)
 model:
   # Path to the Llama 3.1 8B base model. Change if you downloaded it locally.
-  base_model_path: "meta-llama/Llama-3.1-8B"
+  base_model_path: "/workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/"
   adapters: []  # List of adapter paths (optional)
 
