@@ -6,11 +6,11 @@
     },
     {
       "role": "user",
-      "content": "{% if SCHEMA_JSON %}<|schema_json|>{SCHEMA_JSON}<|end_schema|>\n{% endif %}Question: {NATURAL_LANGUAGE_QUESTION}"
+      "content": "{% if schema %}<|schema_json|>{{ schema }}<|end_schema|>\n{% endif %}Question: {{ question }}"
     },
     {
       "role": "assistant",
-      "content": "{POSTGRESQL_QUERY}"
+      "content": "{{ sql }}"
     }
   ]
 }
