@@ -1,0 +1,16 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a PostgreSQL expert. Given a user request (and optional schema), return ONLY the SQL query — no explanation."
+    },
+    {
+      "role": "user",
+      "content": "{% if SCHEMA_JSON %}<|schema_json|>{SCHEMA_JSON}<|end_schema|>\n{% endif %}Question: {NATURAL_LANGUAGE_QUESTION}"
+    },
+    {
+      "role": "assistant",
+      "content": "{POSTGRESQL_QUERY}"
+    }
+  ]
+}
