@@ -84,13 +84,15 @@ def render_entries(data: Iterable[Dict[str, Any]], template: Template) -> List[s
     rendered: List[str] = []
     for item in data:
         context = {
-            "NATURAL_LANGUAGE_QUESTION": item.get("NATURAL_LANGUAGE_QUESTION")
-            or item.get("natural_language_question")
-            or item.get("question"),
-            "POSTGRESQL_QUERY": item.get("POSTGRESQL_QUERY")
+            "question": item.get("question")
+            or item.get("NATURAL_LANGUAGE_QUESTION")
+            or item.get("natural_language_question"),
+            "sql": item.get("sql")
+            or item.get("POSTGRESQL_QUERY")
             or item.get("postgresql_query")
             or item.get("query"),
-            "SCHEMA_JSON": item.get("SCHEMA_JSON")
+            "schema": item.get("schema")
+            or item.get("SCHEMA_JSON")
             or item.get("schema_json")
             or "",
         }
