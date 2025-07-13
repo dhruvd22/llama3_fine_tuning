@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import yaml
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
@@ -34,10 +35,24 @@ def load_from_config(cfg_path: str, logger: logging.Logger):
     model_cfg = cfg.get("model", {})
     base_path = model_cfg["base_model_path"]
     adapters = model_cfg.get("adapters", [])
+    token = model_cfg.get("hf_token") or os.environ.get("HF_TOKEN")
 
     logger.info("Loading base model from %s", base_path)
-    tokenizer = AutoTokenizer.from_pretrained(base_path)
-    model = AutoModelForCausalLM.from_pretrained(base_path)
+    tokenizer = AutoTokenizer.from_pretrained(
+        base_path,
+        token=token,
+        use_fast=False,
+        trust_remote_code=True,
+    )
+    model = AutoModelForCausalLM.from_pretrained(
+        base_path,
+        device_map="auto",
+        torch_dtype=torch.float16,
+        low_cpu_mem_usage=True,
+        token=token,
+        trust_remote_code=True,
+    )
+    tokenizer.pad_token = tokenizer.eos_token
 
     for adapter in adapters:
         logger.info("Applying adapter %s", adapter)
@@ -52,20 +67,37 @@ def main() -> None:
     """Run inference using the provided configuration file."""
     parser = argparse.ArgumentParser(description="Run inference from YAML config")
     parser.add_argument("--config", required=True, help="Path to YAML config")
-    parser.add_argument("--prompt", default="Hello", help="Prompt text")
+    parser.add_argument("--prompt", default=None, help="Prompt text")
     parser.add_argument("--max_tokens", type=int, default=50)
+    parser.add_argument("--interactive", action="store_true", help="Run in interactive mode")
     args = parser.parse_args()
 
     logger = setup_logging()
 
     model, tokenizer = load_from_config(args.config, logger)
-    logger.info("Generating response for prompt: %s", args.prompt)
-    # Tokenize the prompt and generate output tokens
-    inputs = tokenizer(args.prompt, return_tensors="pt")
-    outputs = model.generate(**inputs, max_new_tokens=args.max_tokens)
-    output_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    logger.info("Model output: %s", output_text)
-    print(output_text)
+
+    def generate_response(prompt: str) -> str:
+        inputs = tokenizer(prompt, return_tensors="pt")
+        inputs = {k: v.to(model.device) for k, v in inputs.items()}
+        outputs = model.generate(**inputs, max_new_tokens=args.max_tokens)
+        return tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    if args.interactive:
+        print("Type 'quit' or 'exit' to stop.")
+        while True:
+            user_input = input("> ").strip()
+            if user_input.lower() in {"quit", "exit"}:
+                print("Exiting.")
+                break
+            response = generate_response(user_input)
+            logger.info("Model output: %s", response)
+            print(response)
+    else:
+        prompt = args.prompt or ""
+        logger.info("Generating response for prompt: %s", prompt)
+        response = generate_response(prompt)
+        logger.info("Model output: %s", response)
+        print(response)
 
 if __name__ == '__main__':
     main()
