@@ -2,11 +2,11 @@
   "messages": [
     {
       "role": "system",
-      "content": "You are a PostgreSQL expert. Given a user request (and optional schema), return ONLY the SQL query — no explanation."
+      "content": "You are a PostgreSQL expert. Given a user request (and optional schema), return ONLY the SQL query - no explanation."
     },
     {
       "role": "user",
-      "content": "{% if schema %}<|schema_json|>{{schema}}<|end_schema|>\n{% endif %}Question: {{question}}"
+      "content": "{% if schema %}<|schema_json|>{{schema}}<|end_schema|>{% endif %}Question: {{question}}"
     },
     {
       "role": "assistant",
