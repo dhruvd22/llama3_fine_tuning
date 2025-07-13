@@ -25,10 +25,16 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
 
 2. **Run inference**
 
-   Edit `configs/inference.yaml` to point `base_model_path` to your model directory then run:
+   `configs/inference.yaml` is preconfigured for the public `meta-llama/Llama-3.1-8B` model. If you downloaded the model locally, update `base_model_path` accordingly. To run a single prompt:
 
     ```bash
     python scripts/inference.py --config configs/inference.yaml --prompt "Hello"
+    ```
+
+   For an interactive session where you can enter multiple prompts, run:
+
+    ```bash
+    python scripts/inference.py --config configs/inference.yaml --interactive
     ```
 
 3. **Upload a model directory to the Hub**
