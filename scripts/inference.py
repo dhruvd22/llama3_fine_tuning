@@ -85,10 +85,15 @@ def main() -> None:
     if prompt is None:
         prompt = input("Enter prompt: ").strip()
 
-    logger.info("Generating response for prompt: %s", prompt)
-    response = generate_response(prompt)
-    logger.info("Model output: %s", response)
-    print(response)
+    while True:
+        if prompt.lower() in {"quit", "exit"}:
+            print("Exiting.")
+            break
+        logger.info("Generating response for prompt: %s", prompt)
+        response = generate_response(prompt)
+        logger.info("Model output: %s", response)
+        print(response)
+        prompt = input("Enter prompt: ").strip()
 
 if __name__ == '__main__':
     main()
