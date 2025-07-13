@@ -1,20 +1,34 @@
-# Llama-3-8B Text-to-SQL Fine-Tuning
-Fine-tuning Llama-3-8B for Text-to-SQL (RunPod + Hydra + W&amp;B)
-Scripts, configs, and experiments for fine-tuning Meta AI Llama-3-8B into a Text-to-SQL generator.
+# Llama 3.1 Fine-Tuning Framework
 
-## Folder layout
-- `datasets/`  → raw & processed Spider, WikiSQL, BIRD, …
-- `configs/`    → Axolotl YAML config templates
-- `scripts/`    → reusable shell / Python helpers
-- `checkpoints/`→ LoRA & merged weights
-- `models/`     → final packaged models
-- `logs/`       → training & evaluation logs
+This repository contains a lightweight setup for fine-tuning and running Llama 3 based models on GPU machines such as [RunPod](https://runpod.io/).  
+Training and experiment management is handled via the [Axolotl](https://github.com/axolotl-ai-cloud/axolotl) framework with optional Weights & Biases integration.
 
-## Requirements
-The helper scripts assume common utilities like `wget`, `tar`, and `unzip` are
-installed. On Debian/Ubuntu systems you can install them with:
+## Repository Layout
 
-```bash
-sudo apt-get update && sudo apt-get install -y wget tar unzip
-```
+- `configs/` – YAML configuration files for Axolotl and inference
+- `scripts/` – utility scripts for downloading models and running inference
+- `datasets/` – place your training datasets here
+- `checkpoints/` – fine‑tuning outputs and LoRA adapters
+- `models/` – downloaded or merged models
+- `logs/` – training and evaluation logs
+
+Each directory contains a `.gitkeep` file so it is tracked even if empty.
+
+## Quick Start
+
+1. **Download a base model**
+
+   ```bash
+   python scripts/download_model.py meta-llama/Meta-Llama-3-8B models/my-llama
+   ```
+
+2. **Run inference**
+
+   Edit `configs/inference.yaml` to point `base_model_path` to your model directory then run:
+
+   ```bash
+   python scripts/inference.py --config configs/inference.yaml --prompt "Hello"
+   ```
+
+For training, create an Axolotl configuration under `configs/` and launch it inside your RunPod container. Training metrics can be logged to W&B by setting the appropriate options in your Axolotl config.
 

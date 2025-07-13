@@ -1,0 +1,5 @@
+# Base model location (local path or HF repo)
+model:
+  base_model_path: "models/my-llama"
+  adapters: []  # List of adapter paths (optional)
+
