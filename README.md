@@ -10,7 +10,7 @@ Training and experiment management is handled via the [Axolotl](https://github.c
 - `datasets/` – place your training datasets here
 - `checkpoints/` – fine‑tuning outputs and LoRA adapters
 - `models/` – downloaded or merged models
-- `logs/` – training and evaluation logs
+- `logs/` – output logs from all scripts
 
 Each directory contains a `.gitkeep` file so it is tracked even if empty.
 
@@ -19,6 +19,7 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
 1. **Download a base model**
 
    ```bash
+   export HF_TOKEN=<your huggingface token>
    python scripts/download_model.py meta-llama/Llama-3.1-8B models/my-llama
    ```
 
