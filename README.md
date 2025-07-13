@@ -19,7 +19,7 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
 1. **Download a base model**
 
    ```bash
-   python scripts/download_model.py meta-llama/Meta-Llama-3-8B models/my-llama
+   python scripts/download_model.py meta-llama/Llama-3.1-8B models/my-llama
    ```
 
 2. **Run inference**
