@@ -7,6 +7,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 from typing import List
 
 import yaml
@@ -34,10 +35,15 @@ def setup_logging() -> logging.Logger:
     logger = logging.getLogger("train_lora")
     logger.setLevel(logging.INFO)
     if not logger.handlers:
-        handler = logging.FileHandler(os.path.join(LOGS_DIR, "train_lora.log"))
         fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-        handler.setFormatter(fmt)
-        logger.addHandler(handler)
+
+        file_handler = logging.FileHandler(os.path.join(LOGS_DIR, "train_lora.log"))
+        file_handler.setFormatter(fmt)
+        logger.addHandler(file_handler)
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(fmt)
+        logger.addHandler(stream_handler)
     return logger
 
 
@@ -93,7 +99,15 @@ def main() -> None:
     wb_cfg = cfg.get("wandb", {})
 
     if wb_cfg.get("enabled") and wandb is not None:
-        wandb.init(project=wb_cfg.get("project", "llama-finetune"), name=wb_cfg.get("run_name"))
+        wandb_api_key = os.environ.get("WANDB_API_KEY")
+        if wandb_api_key:
+            wandb.login(key=wandb_api_key)
+        else:
+            logger.warning("WANDB_API_KEY environment variable not set")
+        wandb.init(
+            project=wb_cfg.get("project", "llama-finetune"),
+            name=wb_cfg.get("run_name"),
+        )
         wandb.config.update(cfg)
 
     token = model_cfg.get("hf_token") or os.environ.get("HF_TOKEN")
@@ -113,7 +127,7 @@ def main() -> None:
 
     logger.info("Applying LoRA configuration")
     lora_config = LoraConfig(
-        r=train_cfg.get("lora_r", 8),
+        r=train_cfg.get("lora_r", 16),
         lora_alpha=train_cfg.get("lora_alpha", 32),
         lora_dropout=train_cfg.get("lora_dropout", 0.05),
         bias="none",
@@ -134,6 +148,7 @@ def main() -> None:
         learning_rate=train_cfg.get("learning_rate", 2e-4),
         logging_steps=train_cfg.get("logging_steps", 10),
         save_steps=train_cfg.get("save_steps", 100),
+        gradient_accumulation_steps=train_cfg.get("gradient_accumulation_steps", 1),
         report_to="wandb" if wb_cfg.get("enabled") and wandb is not None else "none",
     )
 
@@ -145,6 +160,7 @@ def main() -> None:
     os.makedirs(train_cfg.get("output_dir", "checkpoints"), exist_ok=True)
     model.save_pretrained(train_cfg.get("output_dir"))
     tokenizer.save_pretrained(train_cfg.get("output_dir"))
+    shutil.copy2(args.config, os.path.join(train_cfg.get("output_dir"), "training_config.yaml"))
     logger.info("Training complete. Adapters saved to %s", train_cfg.get("output_dir"))
 
     if wb_cfg.get("enabled") and wandb is not None:
