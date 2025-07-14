@@ -86,7 +86,6 @@ def main() -> None:
     """Run inference using the provided configuration file."""
     parser = argparse.ArgumentParser(description="Run inference from YAML config")
     parser.add_argument("--config", required=True, help="Path to YAML config")
-    parser.add_argument("--interactive", action="store_true", help="Keep prompting for input until interrupted")
     parser.add_argument("--max_tokens", type=int, default=50)
     args = parser.parse_args()
 
@@ -133,8 +132,7 @@ def main() -> None:
         print("\n=== Model Response ===")
         print(response)
 
-        if not args.interactive:
-            break
+
 
 if __name__ == '__main__':
     main()
