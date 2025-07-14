@@ -1,12 +1,14 @@
 #!/usr/bin/env python
-"""Load a model from config and run a single prompt."""
+"""Load a model from config and run prompt-based inference."""
 import argparse
+import json
 import logging
 import os
 import yaml
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
+from jinja2 import Environment, meta
 
 # Log files are stored in the repository's shared logs directory
 LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
@@ -26,8 +28,20 @@ def setup_logging() -> logging.Logger:
 
     return logger
 
+def load_prompt_template(path: str):
+    """Return a Jinja2 template and the variables it requires."""
+    with open(path, "r") as f:
+        data = json.load(f)
+    template_str = json.dumps(data)
+    env = Environment()
+    ast = env.parse(template_str)
+    variables = sorted(meta.find_undeclared_variables(ast))
+    template = env.from_string(template_str)
+    return template, variables
+
+
 def load_from_config(cfg_path: str, logger: logging.Logger):
-    """Load a model and tokenizer based on a YAML configuration."""
+    """Load a model, tokenizer and prompt template based on a YAML configuration."""
     # Read the YAML configuration describing the model and optional adapters
     with open(cfg_path, "r") as f:
         cfg = yaml.safe_load(f)
@@ -58,22 +72,27 @@ def load_from_config(cfg_path: str, logger: logging.Logger):
         logger.info("Applying adapter %s", adapter)
         model = PeftModel.from_pretrained(model, adapter)
 
+    template_path = cfg.get("prompt_template")
+    if not template_path:
+        raise ValueError("prompt_template must be specified in the config file")
+    template, variables = load_prompt_template(template_path)
+
     model.eval()
     logger.info("Model ready for inference")
-    return model, tokenizer
+    return model, tokenizer, template, variables
 
 
 def main() -> None:
     """Run inference using the provided configuration file."""
     parser = argparse.ArgumentParser(description="Run inference from YAML config")
     parser.add_argument("--config", required=True, help="Path to YAML config")
-    parser.add_argument("--prompt", default=None, help="Prompt text; if not provided you will be asked for it")
+    parser.add_argument("--interactive", action="store_true", help="Keep prompting for input until interrupted")
     parser.add_argument("--max_tokens", type=int, default=50)
     args = parser.parse_args()
 
     logger = setup_logging()
 
-    model, tokenizer = load_from_config(args.config, logger)
+    model, tokenizer, template, variables = load_from_config(args.config, logger)
 
     def generate_response(prompt: str) -> str:
         inputs = tokenizer(prompt, return_tensors="pt")
@@ -82,19 +101,30 @@ def main() -> None:
         generated_tokens = outputs[0, inputs["input_ids"].shape[-1]:]
         return tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-    prompt = args.prompt
-    if prompt is None:
-        prompt = input("Enter prompt: ").strip()
-
     while True:
-        if prompt.lower() in {"quit", "exit"}:
+        values = {}
+        for var in variables:
+            values[var] = input(f"Enter {var}: ").strip()
+
+        if any(v.lower() in {"quit", "exit"} for v in values.values()):
             print("Exiting.")
             break
-        logger.info("Generating response for prompt: %s", prompt)
-        response = generate_response(prompt)
+
+        rendered = template.render(**values)
+        messages = json.loads(rendered)["messages"]
+        prompt_text = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+
+        logger.info("Generating response for values: %s", values)
+        response = generate_response(prompt_text)
         logger.info("Model output: %s", response)
         print(response)
-        prompt = input("Enter prompt: ").strip()
+
+        if not args.interactive:
+            break
 
 if __name__ == '__main__':
     main()

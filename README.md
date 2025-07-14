@@ -25,13 +25,13 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
 
 2. **Run inference**
 
-   `configs/inference.yaml` is preconfigured for the public `meta-llama/Llama-3.1-8B` model. If you downloaded the model locally, update `base_model_path` accordingly. To run a single prompt:
+   `configs/inference.yaml` now also defines a `prompt_template` used to build chat prompts. The script will ask for each variable referenced in the template before sending the request to the model. To run a single inference:
 
     ```bash
-    python scripts/inference.py --config configs/inference.yaml --prompt "Hello"
+    python scripts/inference.py --config configs/inference.yaml
     ```
 
-   For an interactive session where you can enter multiple prompts, run:
+   For a continuous session where you can enter new values repeatedly, run:
 
     ```bash
     python scripts/inference.py --config configs/inference.yaml --interactive
