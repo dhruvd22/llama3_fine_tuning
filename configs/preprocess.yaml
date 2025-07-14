@@ -4,11 +4,23 @@
 default_template: /workspace/data/mygitstuff/llama3_fine_tuning/configs/prompt_templates/default_nl_sql.json
 
 datasets:
-  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/joins/dataset_v1.jsonl
-    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/preprocessed_joins.jsonl
-  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/schema_docs/dataset.jsonl
-    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/preprocessed_schema_docs.jsonl
+  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/joins/dataset_v2.jsonl
+    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_JOINS.jsonl
+  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/schema_docs/dataset_v2.jsonl
+    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_SCHEMA_DOCS.jsonl
     template: /workspace/data/mygitstuff/llama3_fine_tuning/configs/prompt_templates/nl_textsql.json
+  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/schema_relationship/dataset_v3.jsonl
+    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_RELATIONSHIPS.jsonl
+    template: /workspace/data/mygitstuff/llama3_fine_tuning/configs/prompt_templates/nl_textsql.json
+  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/builtins/dataset_v1.jsonl
+    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_BUILTINS.jsonl
+  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/single_table/dataset_v2.jsonl
+    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_SINGLETABLE_WSCHEMA.jsonl
+  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/single_table/dataset_nojson.jsonl
+    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_SINGLETABLE.jsonl
+  - input: /workspace/data/mygitstuff/data_generator/generated_datasets/complex_sqls/dataset_v1.jsonl
+    output: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_COMPLEXSQLS.jsonl
+
   # Add more datasets as needed
   # - input: path/to/other.json
   #   output: path/to/output.jsonl
