@@ -127,6 +127,10 @@ def main() -> None:
         logger.info("Generating response for values: %s", values)
         response = generate_response(prompt_text)
         logger.info("Model output: %s", response)
+
+        print("\n=== Prompt Sent to Model ===")
+        print(prompt_text)
+        print("\n=== Model Response ===")
         print(response)
 
         if not args.interactive:
