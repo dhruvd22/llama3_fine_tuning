@@ -10,7 +10,7 @@
     },
     {
       "role": "assistant",
-      "content": "SQL: {{sql}}"
+      "content": ">>SQL>> {{sql}}"
     }
   ]
 }
