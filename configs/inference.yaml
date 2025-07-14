@@ -5,5 +5,5 @@ model:
   adapters: []  # List of adapter paths (optional)
 
 # Path to the JSON prompt template used for inference
-prompt_template: configs/prompt_templates/default_nl_sql.json
+prompt_template: configs/prompt_templates/inference_prompt_temp_default.json
 
