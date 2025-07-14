@@ -31,13 +31,24 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
     python scripts/inference.py --config configs/inference.yaml
     ```
 
-3. **Upload a model directory to the Hub**
+3. **Fine-tune with LoRA**
+
+   The repository provides a sample Axolotl configuration at `configs/train.yaml`.
+   Set the `WANDB_API_KEY` environment variable so training metrics are logged to
+   your Weights & Biases account and then run:
+
+   ```bash
+   export WANDB_API_KEY=<your wandb api key>
+   python scripts/train.py --config configs/train.yaml
+   ```
+
+   Checkpoints and LoRA adapters will be written under `checkpoints/`.
+
+4. **Upload a model directory to the Hub**
 
     ```bash
     python scripts/upload_model.py models/my-llama "my-model/"
     ```
-
-For training, create an Axolotl configuration under `configs/` and launch it inside your RunPod container. Training metrics can be logged to W&B by setting the appropriate options in your Axolotl config.
 
 
 ## Preprocess NL/SQL Datasets
