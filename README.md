@@ -37,7 +37,20 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
     python scripts/upload_model.py models/my-llama "my-model/"
     ```
 
-For training, create an Axolotl configuration under `configs/` and launch it inside your RunPod container. Training metrics can be logged to W&B by setting the appropriate options in your Axolotl config.
+For LoRA fine-tuning you can use the provided `train_lora.py` script. The default
+configuration sets the LoRA rank to **16** and accumulates gradients over four
+steps. W&B integration reads the API key from the `WANDB_API_KEY` environment
+variable.
+
+```bash
+export HF_TOKEN=<your huggingface token>
+export WANDB_API_KEY=<your wandb key>
+python scripts/train_lora.py --config configs/train_lora.yaml
+```
+
+Training logs are written to `logs/train_lora.log` and the adapters plus the
+`training_config.yaml` used for the run are saved under the configured
+`output_dir`.
 
 
 ## Preprocess NL/SQL Datasets

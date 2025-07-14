@@ -14,9 +14,10 @@ training:
   learning_rate: 2e-4
   logging_steps: 10
   save_steps: 100
-  lora_r: 8
+  lora_r: 16
   lora_alpha: 32
   lora_dropout: 0.05
+  gradient_accumulation_steps: 4
 
 wandb:
   enabled: true
