@@ -112,11 +112,17 @@ def main() -> None:
 
         rendered = template.render(**values)
         messages = json.loads(rendered)["messages"]
-        prompt_text = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-        )
+        # If the tokenizer defines a chat template, use it to build the prompt.
+        # Base models might not provide this attribute so we fall back to a
+        # simple concatenation of message contents.
+        if getattr(tokenizer, "chat_template", None):
+            prompt_text = tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+        else:
+            prompt_text = "\n".join(m.get("content", "") for m in messages)
 
         logger.info("Generating response for values: %s", values)
         response = generate_response(prompt_text)
