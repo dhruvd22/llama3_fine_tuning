@@ -89,7 +89,7 @@ def render_entries(data: Iterable[Dict[str, Any]], template: Template) -> List[s
             or item.get("natural_language_question"),
             "sql": item.get("sql")
             or item.get("POSTGRESQL_QUERY")
-            or item.get("postgresql_query")
+            or item.get("answer")
             or item.get("query"),
             "schema": item.get("schema")
             or item.get("SCHEMA_JSON")
