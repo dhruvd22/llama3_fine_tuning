@@ -83,14 +83,24 @@ def render_entries(data: Iterable[Dict[str, Any]], template: Template) -> List[s
     """Render each dataset entry with the template."""
     rendered: List[str] = []
     for item in data:
+        sql_value = (
+            item.get("sql")
+            or item.get("POSTGRESQL_QUERY")
+            or item.get("answer")
+            or item.get("query")
+        )
+        answer_value = (
+            item.get("answer")
+            or item.get("sql")
+            or item.get("POSTGRESQL_QUERY")
+            or item.get("query")
+        )
         context = {
             "question": item.get("question")
             or item.get("NATURAL_LANGUAGE_QUESTION")
             or item.get("natural_language_question"),
-            "sql": item.get("sql")
-            or item.get("POSTGRESQL_QUERY")
-            or item.get("answer")
-            or item.get("query"),
+            "sql": sql_value,
+            "answer": answer_value,
             "schema": item.get("schema")
             or item.get("SCHEMA_JSON")
             or item.get("schema_json")
