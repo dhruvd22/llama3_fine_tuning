@@ -10,7 +10,7 @@
     },
     {
       "role": "assistant",
-      "content": "{{sql_text}}"
+      "content": "{{answer}}"
     }
   ]
 }
