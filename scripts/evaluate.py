@@ -63,6 +63,9 @@ def connect_db(db_url: str | None):
     ``PGHOST``/``PGPORT``/``PGUSER``/``PGPASSWORD``/``PGDATABASE`` variables.
     """
     if psycopg2 is None:
+        logging.getLogger("evaluate").warning(
+            "psycopg2 not installed; install psycopg2-binary to enable SQL validation"
+        )
         return None
 
     try:
