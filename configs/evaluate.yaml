@@ -7,9 +7,9 @@ models:
     adapters: []
   
   - name: lora_8b_001
-    base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/
+    base_model_path: /workspace/data/mygitstuff/updated_models/base_model_r001
     adapters:
-      - /workspace/data/mygitstuff/checkpoints/lora_run01
+      - /workspace/data/mygitstuff/checkpoints/lora_run02
 
 # Path to the evaluation dataset containing question/answer pairs
 data_path: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/my_eval_dataset.json
