@@ -146,7 +146,7 @@ def main() -> None:
         output_dir=train_cfg.get("output_dir", "checkpoints"),
         num_train_epochs=train_cfg.get("num_epochs", 1),
         per_device_train_batch_size=train_cfg.get("batch_size", 1),
-        learning_rate=train_cfg.get("learning_rate", 2e-4),
+        learning_rate=float(train_cfg.get("learning_rate", 2e-4)),
         logging_steps=train_cfg.get("logging_steps", 10),
         save_steps=train_cfg.get("save_steps", 100),
         gradient_accumulation_steps=train_cfg.get("gradient_accumulation_steps", 1),
