@@ -1,0 +1,13 @@
+# Configuration for evaluating one or more models
+# Each entry under `models` defines the base model path and optional adapters.
+
+models:
+  - name: base-3.1-8b
+    base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/
+    adapters: []
+
+# Path to the evaluation dataset containing question/answer pairs
+data_path: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/eval_questions.json
+
+# Prompt template used to build the evaluation prompt
+prompt_template: configs/prompt_templates/inference_prompt_temp_default.json
