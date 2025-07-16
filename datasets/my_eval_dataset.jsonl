@@ -1,0 +1,21 @@
+{"question": "How many providers are listed in the providers table?", "sql": "SELECT COUNT(*) AS total_providers FROM providers"}
+{"question": "How many supply items were used in total?", "sql": "SELECT SUM(quantity) AS total_supply_items FROM supplies"}
+{"question": "How many unique conditions have been recorded in the database?", "sql": "SELECT COUNT(DISTINCT code) AS unique_conditions_count FROM conditions"}
+{"question": "How many providers are in the database?", "sql": "SELECT COUNT(*) AS provider_count FROM providers"}
+{"question": "How many procedures have been recorded in the database?", "sql": "SELECT COUNT(*) AS procedure_count FROM procedures"}
+{"question": "What is the total number of devices recorded across all encounters in the devices table?", "sql": "SELECT SUM(1) AS total_devices FROM devices"}
+{"question": "What is the total sum of the care plan codes recorded in the database?", "sql": "SELECT SUM(code) AS total_careplan_code FROM careplans"}
+{"question": "What is the total sum of the numerical values recorded in the 'value' field across all observations?", "sql": "SELECT SUM(value::numeric) AS total_observation_value FROM observations WHERE value ~ '^d+(.d+)?$'"}
+{"question": "What is the total utilization score of all providers?", "sql": "SELECT SUM(utilization) AS total_utilization FROM providers"}
+{"question": "What is the total base cost of all medications in the medications table?", "sql": "SELECT SUM(base_cost) AS total_base_cost FROM medications"}
+{"question": "What is the average quantity of supplies provided to patients?", "sql": "SELECT AVG(quantity) AS average_supply_quantity FROM supplies"}
+{"question": "What is the earliest start date of any encounter recorded in the encounters table?", "sql": "SELECT MIN(start) AS earliest_start FROM encounters"}
+{"question": "What is the average length of payer transitions in years for all patients?", "sql": "SELECT AVG(end_year - start_year) AS avg_transition_length_years FROM payer_transitions"}
+{"question": "What is the average revenue of all organizations?", "sql": "SELECT AVG(revenue) AS average_revenue FROM organizations"}
+{"question": "What is the earliest (minimum) date an imaging study was recorded in the imaging_studies table?", "sql": "SELECT MIN(date) AS earliest_study_date FROM imaging_studies"}
+{"question": "What is the earliest date recorded for any imaging study?", "sql": "SELECT MIN(date) AS earliest_imaging_study_date FROM imaging_studies"}
+{"question": "What is the earliest date on which an imaging study was performed in the imaging_studies table?", "sql": "SELECT MIN(date) AS earliest_study_date FROM imaging_studies"}
+{"question": "What is the earliest (oldest) immunization date recorded in the immunizations table?", "sql": "SELECT MIN(date) AS earliest_immunization_date FROM immunizations"}
+{"question": "What is the highest base cost of any immunization recorded in the database?", "sql": "SELECT MAX(base_cost) AS highest_base_cost FROM immunizations"}
+{"question": "What is the maximum total cost of any medication recorded in the medications table?", "sql": "SELECT MAX(totalcost) AS max_total_cost FROM medications"}
+{"question": "What are the average healthcare expenses and coverage per gender?", "sql": "SELECT gender, AVG(healthcare_expenses) AS avg_expenses, AVG(healthcare_coverage) AS avg_coverage FROM patients GROUP BY gender"}
