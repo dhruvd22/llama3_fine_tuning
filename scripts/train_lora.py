@@ -71,7 +71,8 @@ def tokenize_dataset(dataset, tokenizer):
 
     def _tokenize(example):
         if isinstance(example.get("messages"), list):
-            if getattr(tokenizer, "apply_chat_template", None):
+            chat_template = getattr(tokenizer, "chat_template", None)
+            if getattr(tokenizer, "apply_chat_template", None) and chat_template:
                 text = tokenizer.apply_chat_template(
                     example["messages"], tokenize=False, add_generation_prompt=False
                 )
