@@ -66,6 +66,13 @@ Training logs are written to `logs/train_lora.log` and the adapters plus the
 `training_config.yaml` used for the run are saved under the configured
 `output_dir`.
 
+To create a standalone model that includes the fine-tuned weights, merge the
+adapters back into the base model:
+
+```bash
+python scripts/merge_adapters.py /path/to/base_model /path/to/adapter_dir models/merged-model
+```
+
 
 ## Preprocess NL/SQL Datasets
 
