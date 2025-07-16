@@ -66,6 +66,11 @@ Training logs are written to `logs/train_lora.log` and the adapters plus the
 `training_config.yaml` used for the run are saved under the configured
 `output_dir`.
 
+The training script performs a validation pass over each JSONL dataset before
+loading. Malformed lines are skipped and every message object is normalised to
+contain `role` and `content` fields in a consistent order. This prevents schema
+errors when concatenating multiple datasets.
+
 To create a standalone model that includes the fine-tuned weights, merge the
 adapters back into the base model:
 

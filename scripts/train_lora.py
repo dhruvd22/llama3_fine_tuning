@@ -11,7 +11,14 @@ import shutil
 from typing import List
 
 import yaml
-from datasets import Dataset, concatenate_datasets, load_dataset
+from datasets import (
+    Dataset,
+    Features,
+    Sequence,
+    Value,
+    concatenate_datasets,
+    load_dataset,
+)
 from peft import LoraConfig, get_peft_model
 from transformers import (
     AutoModelForCausalLM,
@@ -27,6 +34,13 @@ except Exception:  # pragma: no cover - wandb is optional
     wandb = None
 
 LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+
+# Explicit schema for chat style datasets
+MESSAGE_FEATURES = Features(
+    {
+        "messages": Sequence({"role": Value("string"), "content": Value("string")})
+    }
+)
 
 
 def setup_logging() -> logging.Logger:
@@ -53,31 +67,63 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f)
 
 
+def _parse_jsonlines_file(path: str, logger: logging.Logger) -> Dataset:
+    """Read a JSON Lines file and return a Dataset with validated messages."""
+    records = []
+    with open(path, "r") as fh:
+        for line_no, line in enumerate(fh, start=1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as je:
+                logger.warning(
+                    "Skipping malformed JSON line %d in %s: %s",
+                    line_no,
+                    path,
+                    je,
+                )
+                continue
+
+            msgs = []
+            if isinstance(record.get("messages"), list):
+                for m in record["messages"]:
+                    if not isinstance(m, dict):
+                        logger.warning(
+                            "Skipping invalid message in line %d of %s", line_no, path
+                        )
+                        continue
+                    msgs.append({"role": m.get("role", ""), "content": m.get("content", "")})
+            record["messages"] = msgs
+            records.append(record)
+    return Dataset.from_list(records, features=MESSAGE_FEATURES)
+
+
 def load_datasets(paths: List[str], logger: logging.Logger):
     """Load and concatenate multiple JSONL datasets."""
     datasets = []
     for p in paths:
         logger.info("Loading dataset %s", p)
         try:
-            ds = load_dataset("json", data_files=p, split="train")
+            ds = load_dataset(
+                "json",
+                data_files=p,
+                split="train",
+                features=MESSAGE_FEATURES,
+            )
+            # enforce message key ordering
+            ds = ds.map(
+                lambda ex: {
+                    "messages": [
+                        {"role": m.get("role", ""), "content": m.get("content", "")}
+                        for m in (ex.get("messages") or [])
+                    ]
+                }
+            )
         except Exception as e:  # fall back to manual parsing on JSON errors
             logger.error("Failed to load %s with pyarrow: %s", p, e)
-            records = []
-            with open(p, "r") as fh:
-                for line_no, line in enumerate(fh, start=1):
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        records.append(json.loads(line))
-                    except json.JSONDecodeError as je:
-                        logger.warning(
-                            "Skipping malformed JSON line %d in %s: %s",
-                            line_no,
-                            p,
-                            je,
-                        )
-            ds = Dataset.from_list(records)
+            ds = _parse_jsonlines_file(p, logger)
         datasets.append(ds)
     if len(datasets) > 1:
         logger.info("Concatenating %d datasets", len(datasets))
