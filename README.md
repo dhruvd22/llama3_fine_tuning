@@ -98,9 +98,10 @@ The script outputs a JSON Lines file where each line represents a training examp
 executing it on a PostgreSQL database. The final score is a combination of
 **50% exact string match** and **50% successful SQL execution**.
 
-1. Configure the database connection using the `PGHOST`, `PGPORT`, `PGUSER`,
-   `PGPASSWORD` and `PGDATABASE` environment variables or provide a connection
-   URL with `--db_url`.
+1. Configure the database connection using the `DATABASE_URL` environment
+   variable or specify the individual `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`
+   and `PGDATABASE` variables. A connection URL can also be provided directly
+   with `--db_url`.
 2. Edit `configs/evaluate.yaml` to list the models to test, the evaluation
    dataset path and the prompt template.
 3. Run the script:

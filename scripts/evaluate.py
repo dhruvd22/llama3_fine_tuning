@@ -56,13 +56,19 @@ def create_model_logger(name: str) -> Tuple[logging.Logger, str]:
 
 
 def connect_db(db_url: str | None):
-    """Return a psycopg2 connection or None if connection details are missing."""
+    """Return a psycopg2 connection or ``None`` if no details are available.
+
+    ``db_url`` can be passed directly or provided via the ``DATABASE_URL``
+    environment variable. If neither is set, the function falls back to the
+    ``PGHOST``/``PGPORT``/``PGUSER``/``PGPASSWORD``/``PGDATABASE`` variables.
+    """
     if psycopg2 is None:
         return None
 
     try:
-        if db_url:
-            conn = psycopg2.connect(db_url)
+        url = db_url or os.environ.get("DATABASE_URL")
+        if url:
+            conn = psycopg2.connect(url)
             conn.autocommit = False
             return conn
 
