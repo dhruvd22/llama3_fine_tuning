@@ -1,11 +1,11 @@
 # Llama 3.1 Fine-Tuning Framework
 
-This repository contains a lightweight setup for fine-tuning and running Llama 3 based models on GPU machines such as [RunPod](https://runpod.io/).  
-Training and experiment management is handled via the [Axolotl](https://github.com/axolotl-ai-cloud/axolotl) framework with optional Weights & Biases integration.
+This repository contains a lightweight setup for fine-tuning and running Llama 3 based models on GPU machines such as [RunPod](https://runpod.io/).
+Training and experiment management are handled by standalone Python scripts built on the Hugging Face Transformers library, with optional Weights & Biases integration for experiment tracking.
 
 ## Repository Layout
 
-- `configs/` – YAML configuration files for Axolotl and inference
+- `configs/` – YAML configuration files for training, inference, and preprocessing
 - `scripts/` – utility scripts for downloading models, running inference, and uploading to the Hugging Face Hub
 - `datasets/` – place your training datasets here
 - `checkpoints/` – fine‑tuning outputs and LoRA adapters
@@ -55,7 +55,7 @@ Training logs are written to `logs/train_lora.log` and the adapters plus the
 
 ## Preprocess NL/SQL Datasets
 
-Use `scripts/preprocess_datasets.py` to convert training datasets into the prompt format expected by Axolotl. The command reads a YAML configuration describing one or more datasets and the prompt templates to apply.
+Use `scripts/preprocess_datasets.py` to convert training datasets into the prompt format expected by the `train_lora.py` script. The command reads a YAML configuration describing one or more datasets and the prompt templates to apply.
 
 1. Edit `configs/preprocess.yaml` and set the path to your input dataset and desired output location. By default the `default_template` located under `configs/prompt_templates/` will be used.
 2. Run the preprocessing script:
