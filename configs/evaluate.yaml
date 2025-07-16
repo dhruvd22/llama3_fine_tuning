@@ -2,11 +2,11 @@
 # Each entry under `models` defines the base model path and optional adapters.
 
 models:
-  - name: base_001
+  - name: base_000
     base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/
     adapters: []
   
-  - name: lora_8b_001
+  - name: base001_lora002
     base_model_path: /workspace/data/mygitstuff/updated_models/base_model_r001
     adapters:
       - /workspace/data/mygitstuff/checkpoints/lora_run02
