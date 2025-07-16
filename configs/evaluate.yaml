@@ -7,7 +7,7 @@ models:
     adapters: []
 
 # Path to the evaluation dataset containing question/answer pairs
-data_path: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/eval_questions.json
+data_path: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/my_eval_dataset.json
 
 # Prompt template used to build the evaluation prompt
 prompt_template: configs/prompt_templates/inference_prompt_temp_default.json
