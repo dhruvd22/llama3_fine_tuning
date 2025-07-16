@@ -14,6 +14,7 @@ import yaml
 from datasets import (
     Dataset,
     Features,
+    List as HFList,
     Sequence,
     Value,
     concatenate_datasets,
@@ -38,7 +39,7 @@ LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
 # Explicit schema for chat style datasets
 MESSAGE_FEATURES = Features(
     {
-        "messages": Sequence({"role": Value("string"), "content": Value("string")})
+        "messages": HFList({"role": Value("string"), "content": Value("string")})
     }
 )
 
@@ -86,6 +87,16 @@ def _parse_jsonlines_file(path: str, logger: logging.Logger) -> Dataset:
                 )
                 continue
 
+            # allow lines formatted either as an object with a "messages" key or
+            # directly as a list of message dicts
+            if isinstance(record, list):
+                record = {"messages": record}
+            if not isinstance(record, dict):
+                logger.warning(
+                    "Skipping non-object JSON line %d in %s", line_no, path
+                )
+                continue
+
             msgs = []
             if isinstance(record.get("messages"), list):
                 for m in record["messages"]:
@@ -95,8 +106,11 @@ def _parse_jsonlines_file(path: str, logger: logging.Logger) -> Dataset:
                         )
                         continue
                     msgs.append({"role": m.get("role", ""), "content": m.get("content", "")})
-            record["messages"] = msgs
-            records.append(record)
+            else:
+                logger.warning(
+                    "No 'messages' field in line %d of %s", line_no, path
+                )
+            records.append({"messages": msgs})
     return Dataset.from_list(records, features=MESSAGE_FEATURES)
 
 
