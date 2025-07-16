@@ -1,7 +1,7 @@
 # Configuration for LoRA fine-tuning
 model:
   # Path to the base model weights (local path or HF repo)
-  base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b
+  base_model_path: /workspace/data/mygitstuff/updated_models/base_model_r001
   hf_token: null  # Optional Hugging Face token
 
 training:
