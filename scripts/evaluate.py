@@ -8,6 +8,7 @@ import json
 import logging
 import os
 from typing import Any, Dict, List, Tuple
+from datetime import datetime
 
 import yaml
 import torch
@@ -31,6 +32,22 @@ def setup_logging() -> logging.Logger:
         logger.addHandler(handler)
 
     return logger
+
+
+def create_model_logger(name: str) -> Tuple[logging.Logger, str]:
+    """Return a logger writing to a model-specific log file."""
+    os.makedirs(LOGS_DIR, exist_ok=True)
+    safe_name = "".join(c if c.isalnum() or c in {"-", "_"} else "_" for c in name)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_path = os.path.join(LOGS_DIR, f"evaluate_{safe_name}_{timestamp}.log")
+    logger = logging.getLogger(f"evaluate.{safe_name}.{timestamp}")
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(log_path)
+    fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    handler.setFormatter(fmt)
+    logger.handlers = []
+    logger.addHandler(handler)
+    return logger, log_path
 
 
 def load_prompt_template(path: str):
@@ -117,11 +134,13 @@ def evaluate_model(
             prompt_text = "\n".join(m.get("content", "") for m in messages)
 
         logger.info("Prompting with question: %s", item.get("question"))
+        logger.info("Full prompt sent to model:\n%s", prompt_text)
         prediction = generate(model, tokenizer, prompt_text, max_tokens).strip()
         expected = (item.get("answer") or item.get("sql") or "").strip()
         if prediction == expected:
             correct += 1
-        logger.info("Prediction: %s | Expected: %s", prediction, expected)
+        logger.info("Model response: %s", prediction)
+        logger.info("Expected: %s", expected)
 
     return correct / len(dataset) if dataset else 0.0
 
@@ -152,8 +171,16 @@ def main() -> None:
         name = model_cfg.get("name") or model_cfg.get("base_model_path")
         logger.info("Evaluating model: %s", name)
         model, tokenizer = load_model(model_cfg, logger)
+        run_logger, path = create_model_logger(name)
+        logger.info("Logging prompts and responses to %s", path)
         accuracy = evaluate_model(
-            model, tokenizer, dataset, template, variables, args.max_tokens, logger
+            model,
+            tokenizer,
+            dataset,
+            template,
+            variables,
+            args.max_tokens,
+            run_logger,
         )
         results.append((name, accuracy))
         logger.info("Accuracy for %s: %.4f", name, accuracy)

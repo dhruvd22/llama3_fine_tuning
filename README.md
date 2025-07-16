@@ -77,4 +77,7 @@ The script outputs a JSON Lines file where each line represents a training examp
 python scripts/evaluate.py --config configs/evaluate.yaml
 ```
 
-Accuracy for each model is printed at the end of the run.
+Accuracy for each model is printed at the end of the run. A log file named
+`evaluate_<model>_<timestamp>.log` is created in the `logs/` directory for each
+model, recording the full prompts sent to the model and the responses
+generated.
