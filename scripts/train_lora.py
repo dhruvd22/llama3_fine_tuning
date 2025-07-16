@@ -35,6 +35,7 @@ except Exception:  # pragma: no cover - wandb is optional
     wandb = None
 
 LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+PROMPTS_LOG = os.path.join(LOGS_DIR, "train_lora_prompts.log")
 
 # Explicit schema for chat style datasets
 MESSAGE_FEATURES = Features(
@@ -111,6 +112,7 @@ def _parse_jsonlines_file(path: str, logger: logging.Logger) -> Dataset:
                     "No 'messages' field in line %d of %s", line_no, path
                 )
             records.append({"messages": msgs})
+    logger.info("Parsed %d valid lines from %s", len(records), path)
     return Dataset.from_list(records, features=MESSAGE_FEATURES)
 
 
@@ -141,12 +143,21 @@ def load_datasets(paths: List[str], logger: logging.Logger):
         datasets.append(ds)
     if len(datasets) > 1:
         logger.info("Concatenating %d datasets", len(datasets))
-        return concatenate_datasets(datasets)
-    return datasets[0]
+        dataset = concatenate_datasets(datasets)
+    else:
+        dataset = datasets[0]
+    logger.info("Total valid records: %d", dataset.num_rows)
+    return dataset
 
 
-def tokenize_dataset(dataset, tokenizer):
-    """Tokenize dataset entries for causal language modeling."""
+def tokenize_dataset(dataset, tokenizer, prompt_log_path: str | None = None):
+    """Tokenize dataset entries for causal language modeling.
+
+    If ``prompt_log_path`` is provided, every prompt text is written to that
+    file before tokenization.
+    """
+
+    prompt_fh = open(prompt_log_path, "w") if prompt_log_path else None
 
     def _tokenize(example):
         if isinstance(example.get("messages"), list):
@@ -159,11 +170,17 @@ def tokenize_dataset(dataset, tokenizer):
                 text = "\n".join(m.get("content", "") for m in example["messages"])
         else:
             text = example.get("text") or json.dumps(example)
+        if prompt_fh:
+            prompt_fh.write(text + "\n")
         tokens = tokenizer(text)
         tokens["labels"] = tokens["input_ids"].copy()
         return tokens
 
-    return dataset.map(_tokenize, remove_columns=dataset.column_names)
+    try:
+        return dataset.map(_tokenize, remove_columns=dataset.column_names)
+    finally:
+        if prompt_fh:
+            prompt_fh.close()
 
 
 def main() -> None:
@@ -220,7 +237,7 @@ def main() -> None:
     model.print_trainable_parameters()
 
     dataset = load_datasets(train_cfg.get("datasets", []), logger)
-    dataset = tokenize_dataset(dataset, tokenizer)
+    dataset = tokenize_dataset(dataset, tokenizer, prompt_log_path=PROMPTS_LOG)
 
     data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
 
