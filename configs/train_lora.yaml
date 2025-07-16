@@ -1,14 +1,15 @@
 # Configuration for LoRA fine-tuning
 model:
   # Path to the base model weights (local path or HF repo)
-  base_model_path: /path/to/llama-3.1-8b
+  base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b
   hf_token: null  # Optional Hugging Face token
 
 training:
   datasets:
-    - /path/to/preprocessed_dataset1.jsonl
-    - /path/to/preprocessed_dataset2.jsonl
-  output_dir: checkpoints/lora_output
+    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_SCHEMA_DOCS.jsonl
+    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_RELATIONSHIPS.jsonl
+    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_SINGLETABLE_WSCHEMA.jsonl
+  output_dir: /workspace/data/mygitstuff/checkpoints/lora_run01
   num_epochs: 3
   batch_size: 1
   learning_rate: 2e-4
