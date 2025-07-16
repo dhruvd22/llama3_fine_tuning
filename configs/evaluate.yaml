@@ -2,7 +2,7 @@
 # Each entry under `models` defines the base model path and optional adapters.
 
 models:
-  - name: base-3.1-8b
+  - name: base_001
     base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/
     adapters: []
   
