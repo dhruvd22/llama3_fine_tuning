@@ -10,7 +10,10 @@ import os
 from typing import Any, Dict, List, Tuple
 from datetime import datetime
 
-import psycopg2
+try:
+    import psycopg2
+except Exception:  # pragma: no cover - psycopg2 is optional
+    psycopg2 = None
 
 import yaml
 import torch
@@ -54,6 +57,9 @@ def create_model_logger(name: str) -> Tuple[logging.Logger, str]:
 
 def connect_db(db_url: str | None):
     """Return a psycopg2 connection or None if connection details are missing."""
+    if psycopg2 is None:
+        return None
+
     try:
         if db_url:
             conn = psycopg2.connect(db_url)
