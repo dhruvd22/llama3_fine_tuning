@@ -10,6 +10,8 @@ import os
 from typing import Any, Dict, List, Tuple
 from datetime import datetime
 
+import psycopg2
+
 import yaml
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -48,6 +50,45 @@ def create_model_logger(name: str) -> Tuple[logging.Logger, str]:
     logger.handlers = []
     logger.addHandler(handler)
     return logger, log_path
+
+
+def connect_db(db_url: str | None):
+    """Return a psycopg2 connection or None if connection details are missing."""
+    try:
+        if db_url:
+            conn = psycopg2.connect(db_url)
+            conn.autocommit = False
+            return conn
+
+        host = os.environ.get("PGHOST")
+        if not host:
+            return None
+        conn = psycopg2.connect(
+            host=host,
+            port=os.environ.get("PGPORT", 5432),
+            user=os.environ.get("PGUSER"),
+            password=os.environ.get("PGPASSWORD"),
+            dbname=os.environ.get("PGDATABASE"),
+        )
+        conn.autocommit = False
+        return conn
+    except Exception as exc:
+        raise RuntimeError(f"Failed to connect to database: {exc}")
+
+
+def validate_sql(conn, query: str, logger: logging.Logger) -> bool:
+    """Return True if the SQL compiles and runs without error."""
+    if conn is None or not query:
+        return False
+    try:
+        with conn.cursor() as cur:
+            cur.execute("EXPLAIN " + query)
+        conn.rollback()
+        return True
+    except Exception as exc:
+        logger.info("SQL validation failed: %s", exc)
+        conn.rollback()
+        return False
 
 
 def load_prompt_template(path: str):
@@ -119,9 +160,11 @@ def evaluate_model(
     variables: List[str],
     max_tokens: int,
     logger: logging.Logger,
+    db_conn=None,
 ) -> float:
-    """Return the accuracy of the model on the dataset."""
-    correct = 0
+    """Return the combined score of the model on the dataset."""
+    exact = 0
+    valid = 0
     for item in dataset:
         context = {var: item.get(var, "") for var in variables}
         rendered = template.render(**context)
@@ -138,17 +181,30 @@ def evaluate_model(
         prediction = generate(model, tokenizer, prompt_text, max_tokens).strip()
         expected = (item.get("answer") or item.get("sql") or "").strip()
         if prediction == expected:
-            correct += 1
+            exact += 1
+        if db_conn:
+            if validate_sql(db_conn, prediction, logger):
+                valid += 1
         logger.info("Model response: %s", prediction)
         logger.info("Expected: %s", expected)
 
-    return correct / len(dataset) if dataset else 0.0
+    total = len(dataset) if dataset else 1
+    exact_acc = exact / total
+    valid_acc = valid / total
+    return 0.5 * exact_acc + 0.5 * valid_acc, exact_acc, valid_acc
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate models from a YAML config")
     parser.add_argument("--config", required=True, help="Path to YAML config")
     parser.add_argument("--max_tokens", type=int, default=50)
+    parser.add_argument(
+        "--db_url",
+        help=(
+            "PostgreSQL connection URL. If omitted, PGHOST, PGPORT, PGUSER, "
+            "PGPASSWORD and PGDATABASE environment variables are used"
+        ),
+    )
     args = parser.parse_args()
 
     logger = setup_logging()
@@ -166,14 +222,18 @@ def main() -> None:
         raise ValueError("prompt_template must be specified in the config file")
     template, variables = load_prompt_template(template_path)
 
-    results: List[Tuple[str, float]] = []
+    db_conn = connect_db(args.db_url)
+    if db_conn is None:
+        logger.warning("Database connection not configured; SQL validation disabled")
+
+    results: List[Tuple[str, float, float, float]] = []
     for model_cfg in cfg.get("models", []):
         name = model_cfg.get("name") or model_cfg.get("base_model_path")
         logger.info("Evaluating model: %s", name)
         model, tokenizer = load_model(model_cfg, logger)
         run_logger, path = create_model_logger(name)
         logger.info("Logging prompts and responses to %s", path)
-        accuracy = evaluate_model(
+        score, exact_acc, valid_acc = evaluate_model(
             model,
             tokenizer,
             dataset,
@@ -181,13 +241,25 @@ def main() -> None:
             variables,
             args.max_tokens,
             run_logger,
+            db_conn,
         )
-        results.append((name, accuracy))
-        logger.info("Accuracy for %s: %.4f", name, accuracy)
+        results.append((name, score, exact_acc, valid_acc))
+        logger.info(
+            "Scores for %s - combined: %.4f, exact: %.4f, sql_valid: %.4f",
+            name,
+            score,
+            exact_acc,
+            valid_acc,
+        )
 
     print("\n=== Evaluation Results ===")
-    for name, acc in results:
-        print(f"{name}: {acc:.4f}")
+    for name, score, exact_acc, valid_acc in results:
+        print(
+            f"{name}: {score:.4f} (exact={exact_acc:.4f}, sql={valid_acc:.4f})"
+        )
+
+    if db_conn:
+        db_conn.close()
 
 
 if __name__ == "__main__":

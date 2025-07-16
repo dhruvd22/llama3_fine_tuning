@@ -68,16 +68,22 @@ The script outputs a JSON Lines file where each line represents a training examp
 
 ## Evaluate Models
 
-`scripts/evaluate.py` computes an accuracy score for one or more models using a dataset of question/answer pairs.
+`scripts/evaluate.py` validates every SQL statement returned by the model by
+executing it on a PostgreSQL database. The final score is a combination of
+**50% exact string match** and **50% successful SQL execution**.
 
-1. Edit `configs/evaluate.yaml` to list the models to test, the evaluation dataset path and the prompt template.
-2. Run the script:
+1. Configure the database connection using the `PGHOST`, `PGPORT`, `PGUSER`,
+   `PGPASSWORD` and `PGDATABASE` environment variables or provide a connection
+   URL with `--db_url`.
+2. Edit `configs/evaluate.yaml` to list the models to test, the evaluation
+   dataset path and the prompt template.
+3. Run the script:
 
 ```bash
 python scripts/evaluate.py --config configs/evaluate.yaml
 ```
 
-Accuracy for each model is printed at the end of the run. A log file named
-`evaluate_<model>_<timestamp>.log` is created in the `logs/` directory for each
-model, recording the full prompts sent to the model and the responses
-generated.
+For each model the script prints the combined score as well as the exact-match
+and SQL-validation metrics. A log file named `evaluate_<model>_<timestamp>.log`
+is created in the `logs/` directory for each model, recording the full prompts
+sent to the model and the generated responses.
