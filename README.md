@@ -65,3 +65,16 @@ python scripts/preprocess_datasets.py --config configs/preprocess.yaml
 ```
 
 The script outputs a JSON Lines file where each line represents a training example rendered with the prompt template. Custom templates can be provided per dataset in the YAML configuration if needed.
+
+## Evaluate Models
+
+`scripts/evaluate.py` computes an accuracy score for one or more models using a dataset of question/answer pairs.
+
+1. Edit `configs/evaluate.yaml` to list the models to test, the evaluation dataset path and the prompt template.
+2. Run the script:
+
+```bash
+python scripts/evaluate.py --config configs/evaluate.yaml
+```
+
+Accuracy for each model is printed at the end of the run.
