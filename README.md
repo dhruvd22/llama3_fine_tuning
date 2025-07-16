@@ -3,6 +3,20 @@
 This repository contains a lightweight setup for fine-tuning and running Llama 3 based models on GPU machines such as [RunPod](https://runpod.io/).
 Training and experiment management are handled by standalone Python scripts built on the Hugging Face Transformers library, with optional Weights & Biases integration for experiment tracking.
 
+## Installation
+
+Install the core dependencies with pip:
+
+```bash
+pip install torch transformers datasets peft jinja2 pyyaml
+```
+
+For SQL validation during evaluation you also need the PostgreSQL driver:
+
+```bash
+pip install psycopg2-binary
+```
+
 ## Repository Layout
 
 - `configs/` – YAML configuration files for training, inference, and preprocessing
