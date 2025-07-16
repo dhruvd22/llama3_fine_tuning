@@ -5,9 +5,14 @@ models:
   - name: base-3.1-8b
     base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/
     adapters: []
+  
+  - name: lora_8b_001
+    base_model_path: /workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/
+    adapters:
+      - /workspace/data/mygitstuff/checkpoints/lora_run01
 
 # Path to the evaluation dataset containing question/answer pairs
 data_path: /workspace/data/mygitstuff/llama3_fine_tuning/datasets/my_eval_dataset.json
 
 # Prompt template used to build the evaluation prompt
-prompt_template: configs/prompt_templates/inference_prompt_temp_default.json
+prompt_template: /workspace/data/mygitstuff/llama3_fine_tuning/configs/prompt_templates/inference_prompt_temp_default.json
