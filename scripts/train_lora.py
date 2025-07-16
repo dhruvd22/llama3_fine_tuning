@@ -11,7 +11,7 @@ import shutil
 from typing import List
 
 import yaml
-from datasets import concatenate_datasets, load_dataset
+from datasets import Dataset, concatenate_datasets, load_dataset
 from peft import LoraConfig, get_peft_model
 from transformers import (
     AutoModelForCausalLM,
@@ -58,7 +58,26 @@ def load_datasets(paths: List[str], logger: logging.Logger):
     datasets = []
     for p in paths:
         logger.info("Loading dataset %s", p)
-        ds = load_dataset("json", data_files=p, split="train")
+        try:
+            ds = load_dataset("json", data_files=p, split="train")
+        except Exception as e:  # fall back to manual parsing on JSON errors
+            logger.error("Failed to load %s with pyarrow: %s", p, e)
+            records = []
+            with open(p, "r") as fh:
+                for line_no, line in enumerate(fh, start=1):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        records.append(json.loads(line))
+                    except json.JSONDecodeError as je:
+                        logger.warning(
+                            "Skipping malformed JSON line %d in %s: %s",
+                            line_no,
+                            p,
+                            je,
+                        )
+            ds = Dataset.from_list(records)
         datasets.append(ds)
     if len(datasets) > 1:
         logger.info("Concatenating %d datasets", len(datasets))
@@ -115,7 +134,10 @@ def main() -> None:
 
     logger.info("Loading base model from %s", model_cfg["base_model_path"])
     tokenizer = AutoTokenizer.from_pretrained(
-        model_cfg["base_model_path"], use_fast=False, token=token, trust_remote_code=True
+        model_cfg["base_model_path"],
+        use_fast=False,
+        token=token,
+        trust_remote_code=True,
     )
     model = AutoModelForCausalLM.from_pretrained(
         model_cfg["base_model_path"],
@@ -153,7 +175,12 @@ def main() -> None:
         report_to="wandb" if wb_cfg.get("enabled") and wandb is not None else "none",
     )
 
-    trainer = Trainer(model=model, args=training_args, train_dataset=dataset, data_collator=data_collator)
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=dataset,
+        data_collator=data_collator,
+    )
 
     logger.info("Starting training")
     trainer.train()
@@ -161,7 +188,9 @@ def main() -> None:
     os.makedirs(train_cfg.get("output_dir", "checkpoints"), exist_ok=True)
     model.save_pretrained(train_cfg.get("output_dir"))
     tokenizer.save_pretrained(train_cfg.get("output_dir"))
-    shutil.copy2(args.config, os.path.join(train_cfg.get("output_dir"), "training_config.yaml"))
+    shutil.copy2(
+        args.config, os.path.join(train_cfg.get("output_dir"), "training_config.yaml")
+    )
     logger.info("Training complete. Adapters saved to %s", train_cfg.get("output_dir"))
 
     if wb_cfg.get("enabled") and wandb is not None:
