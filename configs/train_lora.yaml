@@ -6,10 +6,9 @@ model:
 
 training:
   datasets:
-    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_SINGLETABLE.jsonl
-    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_BUILTINS.jsonl
-    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F01_preprocessed_JOINS.jsonl
-  output_dir: /workspace/data/mygitstuff/checkpoints/lora_run02test
+    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F02_preprocessed_SINGLETABLE.jsonl
+    - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F02_preprocessed_JOINS.jsonl
+  output_dir: /workspace/data/mygitstuff/checkpoints/lora_run02testv2
   num_epochs: 3
   batch_size: 1
   learning_rate: 2e-4
