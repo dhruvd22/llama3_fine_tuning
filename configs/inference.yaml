@@ -2,7 +2,8 @@
 model:
   # Path to the Llama 3.1 8B base model. Change if you downloaded it locally.
   base_model_path: "/workspace/data/mygitstuff/llama3_fine_tuning/models/base_3_1_8b/"
-  adapters: []  # List of adapter paths (optional)
+  adapters: 
+    - /workspace/data/mygitstuff/checkpoints/lora_run02testv2
 
 # Path to the JSON prompt template used for inference
 prompt_template: configs/prompt_templates/inference_prompt_temp_default.json
