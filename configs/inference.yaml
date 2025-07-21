@@ -7,3 +7,8 @@ model:
 # Path to the JSON prompt template used for inference
 prompt_template: configs/prompt_templates/inference_prompt_temp_default.json
 
+# Optional stop sequences to truncate the response when encountered
+stop:
+  - "```"
+  - ";\n"
+
