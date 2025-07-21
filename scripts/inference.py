@@ -6,9 +6,28 @@ import logging
 import os
 import yaml
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, StoppingCriteria, StoppingCriteriaList
 from peft import PeftModel
 from jinja2 import Environment, meta
+
+
+class StopOnSequences(StoppingCriteria):
+    """Stop text generation once any of the stop sequences is produced."""
+
+    def __init__(self, stop_sequences, tokenizer):
+        super().__init__()
+        self.stop_sequences = stop_sequences
+        self.tokenizer = tokenizer
+        self.generated = ""
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:  # type: ignore[override]
+        # Decode only the newly generated token and accumulate it
+        token = input_ids[0, -1].item()
+        self.generated += self.tokenizer.decode([token], skip_special_tokens=False)
+        for seq in self.stop_sequences:
+            if self.generated.endswith(seq):
+                return True
+        return False
 
 # Log files are stored in the repository's shared logs directory
 LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
@@ -77,9 +96,11 @@ def load_from_config(cfg_path: str, logger: logging.Logger):
         raise ValueError("prompt_template must be specified in the config file")
     template, variables = load_prompt_template(template_path)
 
+    stop_sequences = cfg.get("stop", [])
+
     model.eval()
     logger.info("Model ready for inference")
-    return model, tokenizer, template, variables
+    return model, tokenizer, template, variables, stop_sequences
 
 
 def main() -> None:
@@ -91,14 +112,27 @@ def main() -> None:
 
     logger = setup_logging()
 
-    model, tokenizer, template, variables = load_from_config(args.config, logger)
+    model, tokenizer, template, variables, stop_sequences = load_from_config(args.config, logger)
 
     def generate_response(prompt: str) -> str:
         inputs = tokenizer(prompt, return_tensors="pt")
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
-        outputs = model.generate(**inputs, max_new_tokens=args.max_tokens)
+        stopping = None
+        if stop_sequences:
+            stopping = StoppingCriteriaList([StopOnSequences(stop_sequences, tokenizer)])
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=args.max_tokens,
+            stopping_criteria=stopping,
+        )
         generated_tokens = outputs[0, inputs["input_ids"].shape[-1]:]
-        return tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        text = tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        if stop_sequences:
+            for seq in stop_sequences:
+                if seq in text:
+                    text = text.split(seq)[0]
+                    break
+        return text
 
     while True:
         values = {}

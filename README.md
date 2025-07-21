@@ -39,7 +39,7 @@ Each directory contains a `.gitkeep` file so it is tracked even if empty.
 
 2. **Run inference**
 
-   `configs/inference.yaml` now also defines a `prompt_template` used to build chat prompts. The script will ask for each variable referenced in the template before sending the request to the model. Run the script and it will keep prompting for new values until you type `exit` or `quit`:
+`configs/inference.yaml` now also defines a `prompt_template` and optional `stop` sequences used to truncate the model output. The script will ask for each variable referenced in the template before sending the request to the model. Run the script and it will keep prompting for new values until you type `exit` or `quit`:
 
     ```bash
     python scripts/inference.py --config configs/inference.yaml
