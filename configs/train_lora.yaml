@@ -8,16 +8,16 @@ training:
   datasets:
     - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F02_preprocessed_SINGLETABLE.jsonl
     - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F02_preprocessed_JOINS.jsonl
-  output_dir: /workspace/data/mygitstuff/checkpoints/lora_run02testv2
+  output_dir: /workspace/data/mygitstuff/checkpoints/lora_run02testv3
   num_epochs: 3
-  batch_size: 1
-  learning_rate: 2e-4
+  batch_size: 1024
+  learning_rate: 8e-4
   logging_steps: 10
   save_steps: 100
   lora_r: 16
   lora_alpha: 32
   lora_dropout: 0.05
-  gradient_accumulation_steps: 4
+  gradient_accumulation_steps: 2
 
 wandb:
   enabled: true
