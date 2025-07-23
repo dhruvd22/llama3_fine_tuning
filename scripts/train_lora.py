@@ -172,7 +172,12 @@ def tokenize_dataset(dataset, tokenizer, prompt_log_path: str | None = None):
             text = example.get("text") or json.dumps(example)
         if prompt_fh:
             prompt_fh.write(text + "\n")
-        tokens = tokenizer(text)
+        tokens = tokenizer(
+            text,
+            padding="max_length",
+            truncation=True,
+            max_length=getattr(tokenizer, "model_max_length", None),
+        )
         tokens["labels"] = tokens["input_ids"].copy()
         return tokens
 
