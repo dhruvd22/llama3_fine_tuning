@@ -14,6 +14,8 @@ training:
   learning_rate: 4e-4
   logging_steps: 10
   save_steps: 100
+  # When false, sequences are padded dynamically to the longest in each batch
+  pad_to_max_length: false
   lora_r: 16
   lora_alpha: 32
   lora_dropout: 0.05
