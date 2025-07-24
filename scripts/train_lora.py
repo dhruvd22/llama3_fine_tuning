@@ -150,7 +150,12 @@ def load_datasets(paths: List[str], logger: logging.Logger):
     return dataset
 
 
-def tokenize_dataset(dataset, tokenizer, prompt_log_path: str | None = None):
+def tokenize_dataset(
+    dataset,
+    tokenizer,
+    prompt_log_path: str | None = None,
+    pad_to_max_length: bool = False,
+):
     """Tokenize dataset entries for causal language modeling.
 
     If ``prompt_log_path`` is provided, every prompt text is written to that
@@ -174,7 +179,7 @@ def tokenize_dataset(dataset, tokenizer, prompt_log_path: str | None = None):
             prompt_fh.write(text + "\n")
         tokens = tokenizer(
             text,
-            padding="max_length",
+            padding="max_length" if pad_to_max_length else False,
             truncation=True,
             max_length=getattr(tokenizer, "model_max_length", None),
         )
@@ -242,7 +247,12 @@ def main() -> None:
     model.print_trainable_parameters()
 
     dataset = load_datasets(train_cfg.get("datasets", []), logger)
-    dataset = tokenize_dataset(dataset, tokenizer, prompt_log_path=PROMPTS_LOG)
+    dataset = tokenize_dataset(
+        dataset,
+        tokenizer,
+        prompt_log_path=PROMPTS_LOG,
+        pad_to_max_length=train_cfg.get("pad_to_max_length", False),
+    )
 
     data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
 
