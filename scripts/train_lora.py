@@ -155,6 +155,7 @@ def tokenize_dataset(
     tokenizer,
     prompt_log_path: str | None = None,
     pad_to_max_length: bool = False,
+    add_labels: bool = True,
 ):
     """Tokenize dataset entries for causal language modeling.
 
@@ -183,7 +184,8 @@ def tokenize_dataset(
             truncation=True,
             max_length=getattr(tokenizer, "model_max_length", None),
         )
-        tokens["labels"] = tokens["input_ids"].copy()
+        if add_labels:
+            tokens["labels"] = tokens["input_ids"].copy()
         return tokens
 
     try:
@@ -252,6 +254,7 @@ def main() -> None:
         tokenizer,
         prompt_log_path=PROMPTS_LOG,
         pad_to_max_length=train_cfg.get("pad_to_max_length", False),
+        add_labels=False,
     )
 
     data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
