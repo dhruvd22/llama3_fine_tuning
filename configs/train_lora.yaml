@@ -10,7 +10,8 @@ training:
     - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F02_preprocessed_JOINS.jsonl
   output_dir: /workspace/data/mygitstuff/checkpoints/lora_run02testv3
   num_epochs: 3
-  batch_size: 16
+  # Reduce the per-device batch size to avoid GPU OOM errors
+  batch_size: 2
   learning_rate: 4e-4
   logging_steps: 10
   save_steps: 100
@@ -19,7 +20,9 @@ training:
   lora_r: 16
   lora_alpha: 32
   lora_dropout: 0.05
-  gradient_accumulation_steps: 2
+  # Accumulate gradients to keep an effective batch size similar to the
+  # original configuration without overloading GPU memory
+  gradient_accumulation_steps: 8
 
 wandb:
   enabled: true
