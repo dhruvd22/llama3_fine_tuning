@@ -10,7 +10,7 @@ training:
     - /workspace/data/mygitstuff/llama3_fine_tuning/datasets/F02_preprocessed_JOINS.jsonl
   output_dir: /workspace/data/mygitstuff/checkpoints/lora_run02testv3
   num_epochs: 3
-  batch_size: 32
+  batch_size: 16
   learning_rate: 4e-4
   logging_steps: 10
   save_steps: 100
