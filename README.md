@@ -56,6 +56,11 @@ configuration sets the LoRA rank to **16** and accumulates gradients over four
 steps. W&B integration reads the API key from the `WANDB_API_KEY` environment
 variable.
 
+The provided `configs/train_lora.yaml` uses a relatively small batch size to
+avoid running out of GPU memory. If you hit CUDA ``OutOfMemory`` errors you can
+further decrease ``batch_size`` and increase ``gradient_accumulation_steps`` to
+keep a similar effective batch size.
+
 ```bash
 export HF_TOKEN=<your huggingface token>
 export WANDB_API_KEY=<your wandb key>
