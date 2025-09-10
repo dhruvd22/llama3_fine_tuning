@@ -97,6 +97,11 @@ python scripts/preprocess_datasets.py --config configs/preprocess.yaml
 
 The script outputs a JSON Lines file where each line represents a training example rendered with the prompt template. Custom templates can be provided per dataset in the YAML configuration if needed.
 
+## Weight & Biases Integration ( Sample runs on Nl>SQL tokens)
+
+<img width="1537" height="681" alt="image" src="https://github.com/user-attachments/assets/a19189f7-d74e-4269-8c8c-5062692c500a" />
+
+
 ## Evaluate Models
 
 `scripts/evaluate.py` validates every SQL statement returned by the model by
